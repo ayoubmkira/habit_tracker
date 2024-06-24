@@ -1,0 +1,40 @@
+<% layout("/layouts/boilerplate") %>
+
+<h2 class="h2">Edit Habit</h2>
+
+<div class="my-6">
+    <a href="/habits" class="inline-flex items-center">
+        <svg class="h-3 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+        </svg>
+        <span class="ms-2">Back to list habits</span>
+    </a>
+</div>
+<form action="/habits/<%= habit.id %>?_method=PUT" method="POST" class="card mx-auto">
+    <div class="grid gap-4">
+        <div class="form-control">
+            <label for="name" class="label">Name:</label>
+            <input type="text" id="name" name="habit[name]" class="input" value="<%= habit.name %>">
+        </div>
+        <div class="form-control">
+            <label for="description" class="label">Description:</label>
+            <textarea name="habit[description]" id="description" class="textarea"><%= habit.description %></textarea>
+        </div>
+        <% if (habit.measurable) { %>
+            <div class="measurable__options grid grid-cols-2 gap-4" id="measurable__options">
+                <div class="form-control">
+                    <label for="goal" class="label">Goal:</label>
+                    <input type="number" id="goal" name="habit[goal]" class="input" value="<%= habit.goal %>">
+                </div>
+                <div class="form-control">
+                    <label for="unit" class="label">Unit:</label>
+                    <input type="text" id="unit" name="habit[unit]" class="input" value="<%= habit.unit %>">
+                </div>
+            </div>
+        <% } %>
+        <div>
+            <button type="submit" class="btn btn--default">Edit</button>
+            <a  href="/habits/<%= habit.id %>" class="btn btn--info">Back to habit</a>
+        </div>
+    </div>
+</form>

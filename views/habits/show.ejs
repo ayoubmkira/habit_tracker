@@ -1,0 +1,36 @@
+<% layout("/layouts/boilerplate") %>
+
+<h2 class="h2">Habit Details</h2>
+
+<div class="my-6">
+    <a href="/habits" class="inline-flex items-center">
+        <svg class="h-3 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+        </svg>
+        <span class="ms-2">Back to list habits</span>
+    </a>
+</div>
+<div class="card mx-auto">
+    <div class="habit__details">
+        <div>
+            <p class="label m-0">Name :</p>
+            <h2 class="h3 text-left"><%= habit.name %></h2>
+        </div>
+        <div>
+            <p class="label m-0">Description :</p>
+            <h3 class="h3"><%= habit.description %></h3>
+        </div>
+        <% if(habit.measurable) { %>
+            <div>
+                <p class="label m-0">Goal :</p>
+                <h4 class="h3"><%= habit.goal %> <%= habit.unit %></h4>
+            </div>
+        <% } %>
+    </div>
+    <div class="flex items-center mt-4">
+        <a href="/habits/<%= habit.id %>/edit" class="btn btn--default me-2">Edit</a>
+        <form action="/habits/<%= habit.id %>?_method=DELETE" method="POST">
+            <button class="text-red-600 btn btn--danger">Delete</button>
+        </form>
+    </div>
+</div>
