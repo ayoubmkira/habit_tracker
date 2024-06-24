@@ -6,12 +6,16 @@
     <title>Document</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+<body class="min-h-screen flex flex-col justify-between">
 
-    <div class="container mx-auto px-6">
+    <%- partial("../partials/navbar.ejs") %>
+
+    <div class="container mx-auto px-6 pt-28">
         <%- body %>
     </div>
 
-    <%- block("scripts").toString() %>    
+    <%- partial("../partials/footer.ejs") %>
+
+    <%- block("scripts").toString() %>
 </body>
 </html>

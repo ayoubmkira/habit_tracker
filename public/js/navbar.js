@@ -1,8 +1,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-
-    /* Toogle measurable options */
+    /* Toogle Navbar */
     const measurableSelectElm = document.getElementById("measurable");
     const measurableOptionsElm = document.getElementById("measurable__options");
 
