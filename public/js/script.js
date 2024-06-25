@@ -5,11 +5,19 @@ document.addEventListener('DOMContentLoaded', function() {
     /* Toogle measurable options */
     const measurableSelectElm = document.getElementById("measurable");
     const measurableOptionsElm = document.getElementById("measurable__options");
+    const measurableSelectInputsElm = document.querySelectorAll("#measurable__options input");
 
     const displayMeasurableOptionsElm = (displayIt) => {
-        displayIt?
-            measurableOptionsElm.style.display = "grid":
+        console.log(measurableSelectInputsElm);
+
+        if(displayIt) {
+            measurableOptionsElm.style.display = "grid";
+            measurableSelectInputsElm.forEach(input => input.disabled = false);
+        } else {
             measurableOptionsElm.style.display = "none";
+            measurableSelectInputsElm.forEach(input => input.disabled = true);
+        }
+
     };
 
     displayMeasurableOptionsElm(false);

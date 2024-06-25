@@ -1,0 +1,206 @@
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/index.js b/index.js[m
+[1mindex fe8bcc6..5ab17d5 100644[m
+[1m--- a/index.js[m
+[1m+++ b/index.js[m
+[36m@@ -5,9 +5,10 @@[m [mimport bodyParser from "body-parser";[m
+ import methodOverride from "method-override";[m
+ import ejsMate from "ejs-mate";[m
+ import ExpressError from "./utils/ExpressError.js";[m
+[31m-import { fileURLToPath } from "url";[m
+[31m-import { Habit } from "./models/habit.js";[m
+ import catchAsync from "./utils/CatchAsync.js";[m
+[32m+[m[32mimport { Habit } from "./models/habit.js";[m
+[32m+[m[32mimport { fileURLToPath } from "url";[m
+[32m+[m[32mimport { validateHabit } from "./middleware.js";[m
+ [m
+ // Connect to Mongoose:[m
+ mongoose.connect('mongodb://127.0.0.1:27017/habit_tracker_db')[m
+[36m@@ -55,14 +56,14 @@[m [mapp.get("/habits", catchAsync(async (req, res) => {[m
+ app.get("/habits/new", (req, res) => {[m
+     res.render("habits/new.ejs");[m
+ });[m
+[31m-app.post("/habits", catchAsync(async (req, res) => {[m
+[32m+[m[32mapp.post("/habits", validateHabit, catchAsync(async (req, res) => {[m
+     const { name, description, measurable, goal, unit } = req.body.habit;[m
+     const newHabit = new Habit({[m
+         name,[m
+         description,[m
+[31m-        measurable: (measurable === "true"),[m
+[31m-        goal: (measurable === "true")? goal: null,[m
+[31m-        unit: (measurable === "true")? unit: null[m
+[32m+[m[32m        measurable,[m
+[32m+[m[32m        goal,[m
+[32m+[m[32m        unit[m
+     });[m
+     await newHabit.save();[m
+     res.redirect(`/habits/${newHabit._id}`);[m
+[36m@@ -73,7 +74,7 @@[m [mapp.get("/habits/:id/edit", catchAsync(async (req, res) => {[m
+     const habit = await Habit.findById(id);[m
+     res.render("habits/edit.ejs", { habit });[m
+ }));[m
+[31m-app.put("/habits/:id", catchAsync(async (req, res) => {[m
+[32m+[m[32mapp.put("/habits/:id", validateHabit, catchAsync(async (req, res) => {[m
+     const { id } = req.params;[m
+     const { name, description, measurable, goal, unit } = req.body.habit;[m
+     const habit = await Habit.findById(id);[m
+[1mdiff --git a/package-lock.json b/package-lock.json[m
+[1mindex 39e9442..d13c490 100644[m
+[1m--- a/package-lock.json[m
+[1m+++ b/package-lock.json[m
+[36m@@ -14,6 +14,7 @@[m
+         "ejs": "^3.1.10",[m
+         "ejs-mate": "^4.0.0",[m
+         "express": "^4.19.2",[m
+[32m+[m[32m        "joi": "^17.13.3",[m
+         "method-override": "^3.0.0",[m
+         "mongoose": "^8.4.3",[m
+         "postcss": "^8.4.38",[m
+[36m@@ -32,6 +33,19 @@[m
+         "url": "https://github.com/sponsors/sindresorhus"[m
+       }[m
+     },[m
+[32m+[m[32m    "node_modules/@hapi/hoek": {[m
+[32m+[m[32m      "version": "9.3.0",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@hapi/hoek/-/hoek-9.3.0.tgz",[m
+[32m+[m[32m      "integrity": "sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ=="[m
+[32m+[m[32m    },[m
+[32m+[m[32m    "node_modules/@hapi/topo": {[m
+[32m+[m[32m      "version": "5.1.0",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@hapi/topo/-/topo-5.1.0.tgz",[m
+[32m+[m[32m      "integrity": "sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==",[m
+[32m+[m[32m      "dependencies": {[m
+[32m+[m[32m        "@hapi/hoek": "^9.0.0"[m
+[32m+[m[32m      }[m
+[32m+[m[32m    },[m
+     "node_modules/@isaacs/cliui": {[m
+       "version": "8.0.2",[m
+       "resolved": "https://registry.npmjs.org/@isaacs/cliui/-/cliui-8.0.2.tgz",[m
+[36m@@ -140,6 +154,24 @@[m
+         "node": ">=14"[m
+       }[m
+     },[m
+[32m+[m[32m    "node_modules/@sideway/address": {[m
+[32m+[m[32m      "version": "4.1.5",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@sideway/address/-/address-4.1.5.tgz",[m
+[32m+[m[32m      "integrity": "sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==",[m
+[32m+[m[32m      "dependencies": {[m
+[32m+[m[32m        "@hapi/hoek": "^9.0.0"[m
+[32m+[m[32m      }[m
+[32m+[m[32m    },[m
+[32m+[m[32m    "node_modules/@sideway/formula": {[m
+[32m+[m[32m      "version": "3.0.1",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@sideway/formula/-/formula-3.0.1.tgz",[m
+[32m+[m[32m      "integrity": "sha512-/poHZJJVjx3L+zVD6g9KgHfYnb443oi7wLu/XKojDviHy6HOEOA6z1Trk5aR1dGcmPenJEgb2sK2I80LeS3MIg=="[m
+[32m+[m[32m    },[m
+[32m+[m[32m    "node_modules/@sideway/pinpoint": {[m
+[32m+[m[32m      "version": "2.0.0",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/@sideway/pinpoint/-/pinpoint-2.0.0.tgz",[m
+[32m+[m[32m      "integrity": "sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ=="[m
+[32m+[m[32m    },[m
+     "node_modules/@sindresorhus/merge-streams": {[m
+       "version": "2.3.0",[m
+       "resolved": "https://registry.npmjs.org/@sindresorhus/merge-streams/-/merge-streams-2.3.0.tgz",[m
+[36m@@ -1290,6 +1322,18 @@[m
+         "jiti": "bin/jiti.js"[m
+       }[m
+     },[m
+[32m+[m[32m    "node_modules/joi": {[m
+[32m+[m[32m      "version": "17.13.3",[m
+[32m+[m[32m      "resolved": "https://registry.npmjs.org/joi/-/joi-17.13.3.tgz",[m
+[32m+[m[32m      "integrity": "sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA==",[m
+[32m+[m[32m      "dependencies": {[m
+[32m+[m[32m        "@hapi/hoek": "^9.3.0",[m
+[32m+[m[32m        "@hapi/topo": "^5.1.0",[m
+[32m+[m[32m        "@sideway/address": "^4.1.5",[m
+[32m+[m[32m        "@sideway/formula": "^3.0.1",[m
+[32m+[m[32m        "@sideway/pinpoint": "^2.0.0"[m
+[32m+[m[32m      }[m
+[32m+[m[32m    },[m
+     "node_modules/jsonfile": {[m
+       "version": "6.1.0",[m
+       "resolved": "https://registry.npmjs.org/jsonfile/-/jsonfile-6.1.0.tgz",[m
+[1mdiff --git a/package.json b/package.json[m
+[1mindex 8f503d0..74c6fab 100644[m
+[1m--- a/package.json[m
+[1m+++ b/package.json[m
+[36m@@ -24,6 +24,7 @@[m
+     "ejs": "^3.1.10",[m
+     "ejs-mate": "^4.0.0",[m
+     "express": "^4.19.2",[m
+[32m+[m[32m    "joi": "^17.13.3",[m
+     "method-override": "^3.0.0",[m
+     "mongoose": "^8.4.3",[m
+     "postcss": "^8.4.38",[m
+[1mdiff --git a/public/js/script.js b/public/js/script.js[m
+[1mindex a60a455..4def63f 100644[m
+[1m--- a/public/js/script.js[m
+[1m+++ b/public/js/script.js[m
+[36m@@ -5,11 +5,19 @@[m [mdocument.addEventListener('DOMContentLoaded', function() {[m
+     /* Toogle measurable options */[m
+     const measurableSelectElm = document.getElementById("measurable");[m
+     const measurableOptionsElm = document.getElementById("measurable__options");[m
+[32m+[m[32m    const measurableSelectInputsElm = document.querySelectorAll("#measurable__options input");[m
+ [m
+     const displayMeasurableOptionsElm = (displayIt) => {[m
+[31m-        displayIt?[m
+[31m-            measurableOptionsElm.style.display = "grid":[m
+[32m+[m[32m        console.log(measurableSelectInputsElm);[m
+[32m+[m
+[32m+[m[32m        if(displayIt) {[m
+[32m+[m[32m            measurableOptionsElm.style.display = "grid";[m
+[32m+[m[32m            measurableSelectInputsElm.forEach(input => input.disabled = false);[m
+[32m+[m[32m        } else {[m
+             measurableOptionsElm.style.display = "none";[m
+[32m+[m[32m            measurableSelectInputsElm.forEach(input => input.disabled = true);[m
+[32m+[m[32m        }[m
+[32m+[m
+     };[m
+ [m
+     displayMeasurableOptionsElm(false);[m
+[1mdiff --git a/views/habits/edit.ejs b/views/habits/edit.ejs[m
+[1mindex bfc7146..eaaaf11 100644[m
+[1m--- a/views/habits/edit.ejs[m
+[1m+++ b/views/habits/edit.ejs[m
+[36m@@ -14,21 +14,24 @@[m
+     <div class="grid gap-4">[m
+         <div class="form-control">[m
+             <label for="name" class="label">Name:</label>[m
+[31m-            <input type="text" id="name" name="habit[name]" class="input" value="<%= habit.name %>" required>[m
+[32m+[m[32m            <input type="text" id="name" name="habit[name]" class="input" value="<%= habit.name %>">[m
+         </div>[m
+         <div class="form-control">[m
+             <label for="description" class="label">Description:</label>[m
+             <textarea name="habit[description]" id="description" class="textarea"><%= habit.description %></textarea>[m
+         </div>[m
+[32m+[m[32m        <div class="form-control" style="display: none;">[m
+[32m+[m[32m            <input type="hidden" name="habit[measurable]" value="<%= habit.measurable %>">[m
+[32m+[m[32m        </div>[m
+         <% if (habit.measurable) { %>[m
+             <div class="measurable__options grid grid-cols-2 gap-4" id="measurable__options">[m
+                 <div class="form-control">[m
+                     <label for="goal" class="label">Goal:</label>[m
+[31m-                    <input type="number" id="goal" name="habit[goal]" class="input" value="<%= habit.goal %>" required>[m
+[32m+[m[32m                    <input type="number" id="goal" name="habit[goal]" class="input" value="<%= habit.goal %>">[m
+                 </div>[m
+                 <div class="form-control">[m
+                     <label for="unit" class="label">Unit:</label>[m
+[31m-                    <input type="text" id="unit" name="habit[unit]" class="input" value="<%= habit.unit %>" required>[m
+[32m+[m[32m                    <input type="text" id="unit" name="habit[unit]" class="input" value="<%= habit.unit %>">[m
+                 </div>[m
+             </div>[m
+         <% } %>[m
+[1mdiff --git a/views/habits/new.ejs b/views/habits/new.ejs[m
+[1mindex 5cd8b8c..538075e 100644[m
+[1m--- a/views/habits/new.ejs[m
+[1m+++ b/views/habits/new.ejs[m
+[36m@@ -35,7 +35,7 @@[m
+             </div>[m
+             <div class="form-control">[m
+                 <label for="unit" class="label">Unit:</label>[m
+[31m-                <input type="text" id="unit" name="habit[unit]" class="input"required>[m
+[32m+[m[32m                <input type="text" id="unit" name="habit[unit]" class="input" required>[m
+             </div>[m
+         </div>[m
+         <button type="submit" class="btn btn--default">Submit</button>[m

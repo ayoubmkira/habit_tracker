@@ -20,6 +20,9 @@
             <label for="description" class="label">Description:</label>
             <textarea name="habit[description]" id="description" class="textarea"><%= habit.description %></textarea>
         </div>
+        <div class="form-control" style="display: none;">
+            <input type="hidden" name="habit[measurable]" value="<%= habit.measurable %>">
+        </div>
         <% if (habit.measurable) { %>
             <div class="measurable__options grid grid-cols-2 gap-4" id="measurable__options">
                 <div class="form-control">

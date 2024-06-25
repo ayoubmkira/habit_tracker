@@ -5,9 +5,10 @@ import bodyParser from "body-parser";
 import methodOverride from "method-override";
 import ejsMate from "ejs-mate";
 import ExpressError from "./utils/ExpressError.js";
-import { fileURLToPath } from "url";
-import { Habit } from "./models/habit.js";
 import catchAsync from "./utils/CatchAsync.js";
+import { Habit } from "./models/habit.js";
+import { fileURLToPath } from "url";
+import { validateHabit } from "./middleware.js";
 
 // Connect to Mongoose:
 mongoose.connect('mongodb://127.0.0.1:27017/habit_tracker_db')
@@ -55,14 +56,13 @@ app.get("/habits", catchAsync(async (req, res) => {
 app.get("/habits/new", (req, res) => {
     res.render("habits/new.ejs");
 });
-app.post("/habits", catchAsync(async (req, res) => {
+app.post("/habits", validateHabit, catchAsync(async (req, res) => {
     const { name, description, measurable, goal, unit } = req.body.habit;
     const newHabit = new Habit({
         name,
         description,
-        measurable: (measurable === "true"),
-        goal: (measurable === "true")? goal: null,
-        unit: (measurable === "true")? unit: null
+        measurable,
+        ...((measurable === "true") && { goal, unit })
     });
     await newHabit.save();
     res.redirect(`/habits/${newHabit._id}`);
@@ -73,15 +73,14 @@ app.get("/habits/:id/edit", catchAsync(async (req, res) => {
     const habit = await Habit.findById(id);
     res.render("habits/edit.ejs", { habit });
 }));
-app.put("/habits/:id", catchAsync(async (req, res) => {
+app.put("/habits/:id", validateHabit, catchAsync(async (req, res) => {
     const { id } = req.params;
     const { name, description, measurable, goal, unit } = req.body.habit;
     const habit = await Habit.findById(id);
     await Habit.findByIdAndUpdate(id, {
         name,
         description,
-        goal: habit.measurable? goal: null,
-        unit: habit.measurable? unit: null
+        ...((habit.measurable === "true") && { goal, unit })
     }, { runValidators: true });
     res.redirect(`/habits/${id}`);
 }));
