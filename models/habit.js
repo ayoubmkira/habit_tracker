@@ -3,11 +3,27 @@ import mongoose, { Model, model } from "mongoose";
 const Schema = mongoose.Schema;
 
 const HabitSchema = new Schema({
-    name: String,
+    name: {
+        type: String,
+        required: true
+    },
     description: String,
-    measurable: Boolean,
-    unit: String,
-    goal: Number
+    measurable: {
+        type: Boolean,
+        required: true
+    },
+    unit: {
+        type: String,
+        required: function () {
+            return this.measurable;
+        }
+    },
+    goal: {
+        type: Number,
+        required: function () {
+            return this.measurable;
+        }
+    }
 });
 
 export const Habit = mongoose.model("Habit", HabitSchema);

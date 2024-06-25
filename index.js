@@ -4,8 +4,10 @@ import path from "path";
 import bodyParser from "body-parser";
 import methodOverride from "method-override";
 import ejsMate from "ejs-mate";
+import AppError from "./utils/AppError.js";
 import { fileURLToPath } from "url";
 import { Habit } from "./models/habit.js";
+import catchAsync from "./utils/CatchAsync.js";
 
 // Connect to Mongoose:
 mongoose.connect('mongodb://127.0.0.1:27017/habit_tracker_db')
@@ -46,14 +48,14 @@ app.get("/", (req, res) => {
     res.render("home.ejs");
 });
 
-app.get("/habits", async (req, res) => {
+app.get("/habits", catchAsync(async (req, res) => {
     const habits = await Habit.find({});
     res.render("habits/index.ejs", { habits });
-});
+}));
 app.get("/habits/new", (req, res) => {
     res.render("habits/new.ejs");
 });
-app.post("/habits", async (req, res) => {
+app.post("/habits", catchAsync(async (req, res) => {
     const { name, description, measurable, goal, unit } = req.body.habit;
     const newHabit = new Habit({
         name,
@@ -64,14 +66,14 @@ app.post("/habits", async (req, res) => {
     });
     await newHabit.save();
     res.redirect(`/habits/${newHabit._id}`);
-});
+}));
 
-app.get("/habits/:id/edit", async (req, res) => {
+app.get("/habits/:id/edit", catchAsync(async (req, res) => {
     const { id } = req.params;
     const habit = await Habit.findById(id);
     res.render("habits/edit.ejs", { habit });
-});
-app.put("/habits/:id", async (req, res) => {
+}));
+app.put("/habits/:id", catchAsync(async (req, res) => {
     const { id } = req.params;
     const { name, description, measurable, goal, unit } = req.body.habit;
     const habit = await Habit.findById(id);
@@ -80,19 +82,30 @@ app.put("/habits/:id", async (req, res) => {
         description,
         goal: habit.measurable? goal: null,
         unit: habit.measurable? unit: null
-    });
+    }, { runValidators: true });
     res.redirect(`/habits/${id}`);
-});
-app.delete("/habits/:id", async (req, res) => {
+}));
+
+app.delete("/habits/:id", catchAsync(async (req, res) => {
     const { id } = req.params;
     await Habit.findByIdAndDelete(id);
     res.redirect("/habits");
-});
+}));
 
-app.get("/habits/:id", async (req, res) => {
+app.get("/habits/:id", catchAsync(async (req, res) => {
     const {id} = req.params;
     const habit = await Habit.findById(id);
     res.render("habits/show.ejs", { habit });
+}));
+
+
+app.use((req, res) => {
+    res.status(404).render(`Sorry "${req.path}" Is Not Found!`);
+});
+
+app.use((err, req, res, next) => {
+    const { status = 400, message = "Something is Wrong" } = err;
+    res.status(status).send(message);
 });
 
 app.listen(PORT, () => {
