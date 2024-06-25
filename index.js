@@ -4,7 +4,7 @@ import path from "path";
 import bodyParser from "body-parser";
 import methodOverride from "method-override";
 import ejsMate from "ejs-mate";
-import AppError from "./utils/AppError.js";
+import ExpressError from "./utils/ExpressError.js";
 import { fileURLToPath } from "url";
 import { Habit } from "./models/habit.js";
 import catchAsync from "./utils/CatchAsync.js";
@@ -98,14 +98,16 @@ app.get("/habits/:id", catchAsync(async (req, res) => {
     res.render("habits/show.ejs", { habit });
 }));
 
-
-app.use((req, res) => {
-    res.status(404).render(`Sorry "${req.path}" Is Not Found!`);
+/* Routes not found */
+app.all('*', function (req, res, next) {
+    next(new ExpressError('Page not found.', 404));
 });
-
+/* Errors handler */
 app.use((err, req, res, next) => {
-    const { status = 400, message = "Something is Wrong" } = err;
-    res.status(status).send(message);
+    const { statusCode = 500 } = err;
+    if(!err.message)
+        err.message = "Something went wrong!!!"
+    res.status(statusCode).render('./error', { err });
 });
 
 app.listen(PORT, () => {
